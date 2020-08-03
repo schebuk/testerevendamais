@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Models\Cep;
+use JansenFelipe\CepGratis\CepGratis;
 
 
 class CepController extends Controller
@@ -27,20 +28,15 @@ class CepController extends Controller
      */
     public function create(Request $request)
     {
-   $cepResponse = \Canducci\Cep\Facades\Cep::find('01010000');
-   $dd(cepResponse);
-        /*$cepResponse = ["cep"=> "01414-001",
-        "logradouro"=> "Rua Haddock Lobo",
-        "bairro"=> "Cerqueira César",
-        "localidade"=> "São Paulo",
-        "uf"=> "SP",
-        "ibge"=> "3550308"];*/
+        
 
-        $insertcep = ["cep"=>  $cepResponse['cep'],
-        "logradouro"=> $cepResponse['logradouro'],
-        "bairro"=> $cepResponse['bairro'],
-        "cidade"=> $cepResponse['localidade'],
-        "uf"=> $cepResponse['uf']];
+        $url = 'https://viacep.com.br/ws/'.$request->cep.'/json/';
+        $cepResponse = json_decode(file_get_contents($url), true);
+        $insertcep = ['cep'=>  $cepResponse['cep'],
+        'logradouro'=> $cepResponse['logradouro'],
+        'bairro'=> $cepResponse['bairro'],
+        'cidade'=> $cepResponse['localidade'],
+        'uf'=> $cepResponse['uf']];
 
         $cep = Cep::create($insertcep);
         return view('cep.form')->with('cep', $cep);
